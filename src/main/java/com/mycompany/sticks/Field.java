@@ -17,7 +17,7 @@ import java.awt.event.MouseListener;
  * @author vovab
  */
 public class Field extends javax.swing.JPanel implements MouseListener{
-    List<MyPoint> lines = new ArrayList();
+    List<MyLine> lines = new ArrayList();
             
     public Field() {
         initComponents();
@@ -27,27 +27,25 @@ public class Field extends javax.swing.JPanel implements MouseListener{
     
     @Override
     public void mouseClicked(MouseEvent e) {
-        int min_x = 999999;
-        int index_x = 0;
-        int min_y = 999999;
-        int index_y = 0;
         int size = this.getSize().height/6;
-        
-        for (int i = 0; i < 8; i++) {
-            if (Math.abs(e.getX()-i*size)<min_x) {
-                min_x = Math.abs(e.getX()-i*size);
-                index_x = i;
-            }
+        Positions pos;
+        int index_x, index_y;
+        if (e.getX() % size < 10) {
+            pos = Positions.VERTICAL;
+            index_x = e.getX()/size;
+            index_y = e.getY()/size;
+            lines.add(new MyLine(index_x*size, index_y*size, pos));
+        } else if (e.getX() % size > 25) {
+            pos = Positions.VERTICAL;
+            index_x = e.getX()/size + 1;
+            index_y = e.getY()/size;
+            lines.add(new MyLine(index_x*size, index_y*size, pos));
+        } else {
+            pos = Positions.HORIZONTAL;
+            index_x = e.getX()/size;
+            index_y = e.getY()/size;
+            lines.add(new MyLine(index_x*size, index_y*size, pos));
         }
-        for (int i = 0; i < 8; i++) {
-            if (Math.abs(e.getY()-i*size)<min_y) {
-                min_y = Math.abs(e.getY()-i*size);
-                index_y = i;
-            }
-        }
-        lines.add(new MyPoint(index_x*size, index_y*size));
-        
-        //lines.add(new MyPoint(e.getX(), e.getY()));
         this.repaint();
     }
     
@@ -75,9 +73,15 @@ public class Field extends javax.swing.JPanel implements MouseListener{
                 g2d.fillOval(size*j, size*i, 5, 5);
             }
         
-        for (MyPoint line : lines) {
-            g2d.setStroke(new BasicStroke(2));
-            g2d.drawLine(line.getX()+2, line.getY()+2, line.getX()+size+2, line.getY()+2);
+        for (MyLine line : lines) {
+            g2d.setStroke(new BasicStroke(3));
+            if (line.getPos() == Positions.HORIZONTAL) {
+                g2d.drawLine(line.getX()+2, line.getY()+2, 
+                line.getX()+size+2, line.getY()+2);
+            } else {
+                g2d.drawLine(line.getX()+2, line.getY()+2, 
+                line.getX()+2, line.getY()+size+2);
+            }
         }
     }
     

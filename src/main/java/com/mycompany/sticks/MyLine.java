@@ -8,12 +8,14 @@ package com.mycompany.sticks;
  *
  * @author vovab
  */
-public class MyPoint {
+public class MyLine {
     private int x = 0, y = 0;
+    private Positions pos = Positions.HORIZONTAL;
     
-    MyPoint(int x, int y) {
+    MyLine(int x, int y, Positions pos) {
         this.x = x;
         this.y = y;
+        this.pos = pos;
     }
     int getX() {
         return x;
@@ -21,5 +23,9 @@ public class MyPoint {
     
     int getY() {
         return y;
+    }
+    
+    Positions getPos() {
+        return pos;
     }
 }
