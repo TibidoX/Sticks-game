@@ -35,7 +35,7 @@ public class Field extends javax.swing.JPanel implements MouseListener{
             index_x = e.getX()/size;
             index_y = e.getY()/size;
             lines.add(new MyLine(index_x*size, index_y*size, pos));
-        } else if (e.getX() % size > 25) {
+        } else if (e.getX() % size > 35) {
             pos = Positions.VERTICAL;
             index_x = e.getX()/size + 1;
             index_y = e.getY()/size;
@@ -47,6 +47,26 @@ public class Field extends javax.swing.JPanel implements MouseListener{
             lines.add(new MyLine(index_x*size, index_y*size, pos));
         }
         this.repaint();
+        List<Integer> t = checkSquare();
+        for (Integer i: t) System.out.println(i);
+    }
+    
+    public List<Integer> checkSquare() {
+        int size = this.getSize().height/6;
+        List<Integer> res = new ArrayList<>();
+        for (int i = 0; i < 7; i++) 
+            for (int j = 0; j < 7; j++) {
+                List<MyLine> tmp = new ArrayList();
+                tmp.add(new MyLine(j*size, i*size, Positions.HORIZONTAL));
+                tmp.add(new MyLine(j*size+size, i*size, Positions.VERTICAL));
+                tmp.add(new MyLine(j*size, i*size+size, Positions.HORIZONTAL));
+                tmp.add(new MyLine(j*size, i*size, Positions.VERTICAL));
+
+                if (lines.containsAll(tmp)) {
+                    res.add(i*6+j);
+                }
+            }
+        return res;
     }
     
     @Override

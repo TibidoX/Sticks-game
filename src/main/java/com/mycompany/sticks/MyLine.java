@@ -28,4 +28,13 @@ public class MyLine {
     Positions getPos() {
         return pos;
     }
+    
+    @Override
+    public boolean equals(Object o) {
+//        if (!(o instanceof MyLine)) {
+//            return false;
+//        }
+        MyLine line = (MyLine) o;
+        return (x == line.getX() && y == line.getY() && pos == line.getPos());
+    }
 }
