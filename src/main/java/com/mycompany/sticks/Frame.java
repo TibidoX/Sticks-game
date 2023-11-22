@@ -3,7 +3,8 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package com.mycompany.sticks;
-import java.awt.event.MouseListener;
+import java.rmi.server.UnicastRemoteObject;
+import java.rmi.registry.*;
 
 /**
  *
@@ -16,7 +17,50 @@ public class Frame extends javax.swing.JFrame {
      */
     public Frame() {
         initComponents();
-        //field.addMouseListener(this);
+        //String host = (args.length < 1) ? null : args[0];
+        String host = null;
+        int port = 8080;
+        int port1;
+        String name;
+        
+        try {
+            Registry registryS = LocateRegistry.getRegistry(host, port);
+            System.out.println("registry: " + host + ":" + port);
+            RemoteInterfaceServer serverProxy = (RemoteInterfaceServer) registryS.lookup("Server");
+            System.out.println(serverProxy);
+            field.setStub(serverProxy);
+            
+            if (serverProxy.getClientsCount() == 0) {
+                port1 = 8081;
+                name = "Client1";
+            } else {
+                port1 = 8082;
+                name = "Client2";
+            }
+            field.setId(port1);
+            
+            RemoteInterfaceClient stub = 
+            (RemoteInterfaceClient) UnicastRemoteObject.exportObject(field, 0);
+            Registry registry = LocateRegistry.createRegistry(port1);
+            registry.bind(name, stub);
+            System.err.println("Client ready");
+            
+            serverProxy.addClient(port1, name);
+        } catch (Exception e) {
+            System.err.println("RMI Exception: " + e.toString());
+            e.printStackTrace();
+        }
+        
+        try {
+            
+        } catch (Exception e) {
+            System.err.println("RMI Exception: " + e.toString());
+            e.printStackTrace();
+        }
+    }
+    
+    public void setStub(RemoteInterfaceServer s) {
+        field.setStub(s);
     }
 
     /**
@@ -32,16 +76,7 @@ public class Frame extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        javax.swing.GroupLayout fieldLayout = new javax.swing.GroupLayout(field);
-        field.setLayout(fieldLayout);
-        fieldLayout.setHorizontalGroup(
-            fieldLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 250, Short.MAX_VALUE)
-        );
-        fieldLayout.setVerticalGroup(
-            fieldLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 250, Short.MAX_VALUE)
-        );
+        field.setLayout(null);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -49,23 +84,20 @@ public class Frame extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(196, 196, 196)
-                .addComponent(field, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(field, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(204, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(53, 53, 53)
-                .addComponent(field, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(field, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(52, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">

@@ -1,8 +1,9 @@
+com\mycompany\sticks\RemoteInterfaceClient.class
 com\mycompany\sticks\Frame$1.class
 com\mycompany\sticks\Frame.class
-com\mycompany\sticks\Sticks.class
+com\mycompany\sticks\RemoteInterfaceServer.class
 com\mycompany\sticks\Positions.class
 com\mycompany\sticks\MyLine.class
 com\mycompany\sticks\Server.class
-com\mycompany\sticks\Model.class
 com\mycompany\sticks\Field.class
+com\mycompany\sticks\RunServer.class

@@ -4,11 +4,13 @@
  */
 package com.mycompany.sticks;
 
+import java.io.Serializable;
+
 /**
  *
  * @author vovab
  */
-public class MyLine {
+public class MyLine implements Serializable{
     private int x = 0, y = 0;
     private Positions pos = Positions.HORIZONTAL;
     
@@ -31,9 +33,6 @@ public class MyLine {
     
     @Override
     public boolean equals(Object o) {
-//        if (!(o instanceof MyLine)) {
-//            return false;
-//        }
         MyLine line = (MyLine) o;
         return (x == line.getX() && y == line.getY() && pos == line.getPos());
     }

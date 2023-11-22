@@ -4,69 +4,69 @@
  */
 package com.mycompany.sticks;
 
-import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.rmi.RemoteException;
+import javax.swing.JOptionPane;
 
 /**
  *
  * @author vovab
  */
-public class Field extends javax.swing.JPanel implements MouseListener{
+public class Field extends javax.swing.JPanel implements RemoteInterfaceClient, MouseListener {
     List<MyLine> lines = new ArrayList();
-            
+    List<Integer> X = new ArrayList();
+    List<Integer> O = new ArrayList();
+    RemoteInterfaceServer stub;
+    int id;
+    
     public Field() {
         initComponents();
         addMouseListener(this);
-        //points = new ArrayList();
+    }
+    
+    public void showWinner(int id) {
+        if (id != -1) {
+            Thread thread = new Thread(
+            ()->
+            {
+                if (this.id == id) {
+                    JOptionPane.showMessageDialog(this, "You won!!!");
+                } else {
+                    JOptionPane.showMessageDialog(this, "You lose(((");
+                }
+            }
+            );
+            thread.start();
+        }
+    }
+    
+    public void setStub(RemoteInterfaceServer _stub) {
+        stub = _stub;
+    }
+    
+    public void setId(int id) {
+        this.id = id;
+    }
+    
+    public int getId() {
+        return id;
     }
     
     @Override
     public void mouseClicked(MouseEvent e) {
         int size = this.getSize().height/6;
-        Positions pos;
-        int index_x, index_y;
-        if (e.getX() % size < 10) {
-            pos = Positions.VERTICAL;
-            index_x = e.getX()/size;
-            index_y = e.getY()/size;
-            lines.add(new MyLine(index_x*size, index_y*size, pos));
-        } else if (e.getX() % size > 35) {
-            pos = Positions.VERTICAL;
-            index_x = e.getX()/size + 1;
-            index_y = e.getY()/size;
-            lines.add(new MyLine(index_x*size, index_y*size, pos));
-        } else {
-            pos = Positions.HORIZONTAL;
-            index_x = e.getX()/size;
-            index_y = e.getY()/size;
-            lines.add(new MyLine(index_x*size, index_y*size, pos));
+        try {
+            stub.move(e.getX(), e.getY(), size, id);
+        } catch (Exception ex) {
+            
         }
-        this.repaint();
-        List<Integer> t = checkSquare();
-        for (Integer i: t) System.out.println(i);
-    }
-    
-    public List<Integer> checkSquare() {
-        int size = this.getSize().height/6;
-        List<Integer> res = new ArrayList<>();
-        for (int i = 0; i < 7; i++) 
-            for (int j = 0; j < 7; j++) {
-                List<MyLine> tmp = new ArrayList();
-                tmp.add(new MyLine(j*size, i*size, Positions.HORIZONTAL));
-                tmp.add(new MyLine(j*size+size, i*size, Positions.VERTICAL));
-                tmp.add(new MyLine(j*size, i*size+size, Positions.HORIZONTAL));
-                tmp.add(new MyLine(j*size, i*size, Positions.VERTICAL));
-
-                if (lines.containsAll(tmp)) {
-                    res.add(i*6+j);
-                }
-            }
-        return res;
     }
     
     @Override
@@ -87,6 +87,15 @@ public class Field extends javax.swing.JPanel implements MouseListener{
         int size = this.getSize().height/6;
         Graphics2D g2d = (Graphics2D) g;
         
+        try {
+            if (stub.checkMove() == id) {
+                g2d.setColor(Color.BLACK);
+            } else {
+                g2d.setColor(Color.LIGHT_GRAY);
+            }
+        } catch (RemoteException ex) {
+        }
+        
         for (int i = 0; i < 7; i++) 
             for (int j = 0; j < 7; j++) {
                 g2d.drawOval(size*j, size*i, 5, 5);
@@ -103,8 +112,30 @@ public class Field extends javax.swing.JPanel implements MouseListener{
                 line.getX()+2, line.getY()+size+2);
             }
         }
+        for (int x: X) {
+            g2d.setStroke(new BasicStroke(3));
+            g2d.setColor(Color.RED);
+            int cordX = (x%6)*size;
+            int cordY = (x/6)*size;
+            g2d.drawLine(cordX+2, cordY+2, cordX + size + 2, cordY + size + 2);
+            g2d.drawLine(cordX+2, cordY+size+2, cordX + size+2, cordY+2);
+        }
+        for (int o: O) {
+            g2d.setStroke(new BasicStroke(3));
+            g2d.setColor(Color.BLUE);
+            int cordX = (o%6)*size;
+            int cordY = (o/6)*size;
+            g2d.drawOval(cordX+2, cordY+2, size, size);
+        }
     }
     
+    @Override
+    public void update(List<MyLine> lines, List<Integer> X, List<Integer> O) {
+        this.lines = lines;
+        this.X = X;
+        this.O = O;
+        this.repaint();
+    }
     
     /**
      * This method is called from within the constructor to initialize the form.
